@@ -102,21 +102,21 @@ img {
   transform: scale(1.03);
 }
 
-.photo-card_image {
+.photo-card__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform var(--animation-duration) var(--timing-function);
 }
 
-.photo-card_link {
+.photo-card__link {
   flex-grow: 2;
   display: block;
   text-decoration: none;
   width: 290px;
 }
 
-.photo-card_link:hover {
+.photo-card__link:hover {
   cursor: zoom-in;
 }
 
