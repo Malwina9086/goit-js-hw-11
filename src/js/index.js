@@ -1,11 +1,12 @@
 'use strict';
+
 console.log(document);
 
-import axios from 'axios';
 import Notiflix from 'notiflix';
 import 'notiflix/dist/notiflix-3.2.6.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { fetchPhotos } from './api';
 
 const apiKey = '39706088-eed53521a6a27e1b88370a6d4';
 
@@ -22,21 +23,21 @@ let searchQuery = '';
 
 loadMoreBtn.style.display = 'none';
 
-const fetchPhotos = async () => {
-  try {
-    const response = await axios.get('https://pixabay.com/api/', {
-      params: {
-        key: apiKey,
-        q: searchQuery,
-        image_type: 'photo',
-        orientation: 'horizontal',
-        safesearch: true,
-        per_page: perPage,
-        page: page,
-      },
-    });
+const handleSearch = async () => {
+  const searchValue = searchForm.searchQuery.value.trim();
 
-    const { data } = response;
+  if (searchValue === '') {
+    Notiflix.Notify.failure('Error. You must enter something.');
+    searchQuery = '';
+    return;
+  }
+
+  searchQuery = searchValue;
+  gallery.innerHTML = '';
+  page = 1;
+
+  try {
+    const data = await fetchPhotos(searchQuery, page, perPage);
 
     if (data.hits.length === 0) {
       Notiflix.Notify.warning(
@@ -50,9 +51,7 @@ const fetchPhotos = async () => {
       Notiflix.Notify.success(`Success! We found ${totalHits} images.`);
 
       if (page === 1) {
-        Notiflix.Notify.success(
-          `Hooray! We found ${totalHits} images.} images.`
-        );
+        Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
       }
 
       if (data.totalHits <= page * perPage) {
@@ -95,24 +94,13 @@ const galleryElements = images => {
 
 searchForm.addEventListener('submit', async e => {
   e.preventDefault();
-  const searchValue = e.target.searchQuery.value.trim();
-
-  if (searchValue === '') {
-    Notiflix.Notify.failure('Error. You must enter something.');
-    searchQuery = '';
-    return;
-  }
-
-  searchQuery = searchValue;
-  gallery.innerHTML = '';
-  page = 1;
-  fetchPhotos();
+  handleSearch();
 });
 
 loadMoreBtn.addEventListener('click', () => {
   console.log('Load More clicked!');
   page++;
-  fetchPhotos();
+  handleSearch();
 
   const galleryElement = document.querySelector('.gallery');
 
